@@ -1,0 +1,11 @@
+<h2>Issued Metro Cards</h2>
+<table>
+    <tr><th>Card No</th><th>Name</th><th>Student PRN</th></tr>
+    {% for card in cards %}
+        <tr>
+            <td>{{ card["cardno"] }}</td>
+            <td>{{ card["name"] }}</td>
+            <td>{{ card["id"] if card["id"] else "Not a student" }}</td>
+        </tr>
+    {% endfor %}
+</table>

@@ -1,0 +1,28 @@
+<form method="POST">
+    <label>Card No (Optional):</label>
+    <input type="text" name="cardno">
+    
+    <label>From Station:</label>
+    <select name="start_station">
+        {% for station in stations %}
+            <option value="{{ station['id'] }}">{{ station['name'] }}</option>
+        {% endfor %}
+    </select>
+
+    <label>To Station:</label>
+    <select name="end_station">
+        {% for station in stations %}
+            <option value="{{ station['id'] }}">{{ station['name'] }}</option>
+        {% endfor %}
+    </select>
+    
+    <button type="submit">Book Ticket</button>
+</form>
+
+{% if error %}
+    <p style="color: red;">{{ error }}</p>
+{% endif %}
+
+{% if fare is not none %}
+    <p>Total Fare: ₹{{ fare }}</p>
+{% endif %}

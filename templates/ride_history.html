@@ -1,0 +1,12 @@
+<h2>Ride History</h2>
+<table>
+    <tr><th>Card No</th><th>From</th><th>To</th><th>Fare</th></tr>
+    {% for ride in rides %}
+        <tr>
+            <td>{{ ride["cardno"] }}</td>
+            <td>{{ ride["source_station"] }}</td>
+            <td>{{ ride["destination_station"] }}</td>
+            <td>₹{{ ride["fare"] }}</td>
+        </tr>
+    {% endfor %}
+</table>
