@@ -53,7 +53,7 @@ Run **`tables.sql`** and **`stations.sql`** to create database and tables
 python app.py
 ```
 
-### Open in Browser
+### 2. Open in Browser
 ```
 http://127.0.0.1:5000/
 ```
