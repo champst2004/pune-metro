@@ -1,5 +1,5 @@
-create database pune;
-use pune;
+create database metro;
+use metro;
 
 CREATE TABLE students (
     prn VARCHAR(10) PRIMARY KEY,

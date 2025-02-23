@@ -4,7 +4,7 @@ db = mysql.connector.connect(
     host="localhost",
     user="root",
     password=passw,
-    database="pune"
+    database="metro"
 )
 
 cursor = db.cursor(dictionary=True)  # Fetch data as dictionaries
