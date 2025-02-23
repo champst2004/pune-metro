@@ -35,7 +35,7 @@ Non-Card Holders: No discount
 
 ### 1️⃣ **Clone the Repository**
 ```bash
-git clone https://github.com/yourusername/pune-metro.git
+git clone https://github.com/champst2004/pune-metro.git
 cd pune-metro
 ```
 ### 2️⃣ Install Dependencies
