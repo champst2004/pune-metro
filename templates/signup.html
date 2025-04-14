@@ -1,32 +1,121 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Sign-Up</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+
+        .form-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        label {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 8px;
+            display: block;
+            text-align: left;
+        }
+
+        input[type="text"], input[type="email"], select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        input[type="submit"] {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            cursor: pointer;
+            border-radius: 4px;
+            width: 100%;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #218838;
+        }
+
+        .message {
+            font-size: 14px;
+            margin-top: 20px;
+        }
+
+        .message p {
+            margin: 10px 0;
+        }
+
+        .message .success {
+            color: green;
+        }
+
+        .message .error {
+            color: red;
+        }
+
+        p {
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-    <h2>Register as Metro User</h2>
-    <form method="POST">
-        <label>Name:</label><br>
-        <input type="text" name="name" required><br><br>
+    <div class="form-container">
+        <h2>Register as Metro User</h2>
+        <form method="POST">
+            <label for="name">Name:</label>
+            <input type="text" name="name" id="name" required><br><br>
 
-        <label>Email:</label><br>
-        <input type="email" name="email" required><br><br>
+            <label for="email">Email:</label>
+            <input type="email" name="email" id="email" required><br><br>
 
-        <label>User Type:</label><br>
-        <select name="usertype" required>
-            <option value="General">General</option>
-            <option value="Student">Student</option>
-        </select><br><br>
+            <label for="usertype">User Type:</label>
+            <select name="usertype" id="usertype" required>
+                <option value="General">General</option>
+                <option value="Student">Student</option>
+            </select><br><br>
 
-        <input type="submit" value="Sign Up">
-    </form>
+            <input type="submit" value="Sign Up">
+        </form>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% for category, message in messages %}
-        <p style="color: {% if category == 'success' %}green{% else %}red{% endif %};">{{ message }}</p>
-      {% endfor %}
-    {% endwith %}
-
-    <p><a href="/admin">Back to Admin Login</a></p>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="message">
+                    <p class="{{ 'success' if category == 'success' else 'error' }}">
+                        {{ message }}
+                    </p>
+                </div>
+            {% endfor %}
+        {% endwith %}
+        
+        <p><a href="/home">Back to Home</a></p>
+    </div>
 </body>
 </html>

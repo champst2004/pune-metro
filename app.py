@@ -3,9 +3,10 @@ from db import get_db
 import mysql.connector
 
 app = Flask(__name__)
-app.secret_key = "supersecretkey"
+app.secret_key = "hehedbms"
 
 @app.route("/")
+@app.route("/home")
 def home():
     return render_template("index.html")
 
@@ -21,8 +22,6 @@ def login2():
         name = request.form['name']
         email = request.form['email']
 
-        print(f"Attempting login for: {name}, {email}")  # Debugging
-
         cursor.execute("SELECT * FROM users WHERE name=%s AND email=%s", (name, email))
         user_data = cursor.fetchone()
 
@@ -30,11 +29,9 @@ def login2():
             userid = user_data["userID"]
             session["userid"] = userid
             flash("Login successful!", "success")
-            print(f"Login successful for userID: {userid}")  # Debugging
-            return redirect("/user")  # Should redirect here
+            return redirect("/user")
         else:
             flash("Credentials do not match", "warning")
-            print("Login failed.")  # Debugging
 
     return render_template("login2.html")
 
@@ -55,7 +52,6 @@ def signup():
         usertype = request.form['usertype']
 
         try:
-            # Validate MITWPU Student email
             if usertype == "Student":
                 cursor.execute("SELECT * FROM students WHERE email = %s", (email,))
                 student = cursor.fetchone()
@@ -103,9 +99,17 @@ def admin_dashboard():
         flash("Please log in as admin first!", "warning")
         return redirect("/admin")
 
-    cursor.execute("select * from users")  
+    cursor.execute("SELECT * FROM users")
     users = cursor.fetchall()
-    return render_template("admin_dashboard.html", users = users)
+
+    cursor.execute("SELECT * FROM cards")
+    cards = cursor.fetchall()
+
+    cursor.execute("SELECT * FROM transactions")
+    transactions = cursor.fetchall()
+
+    return render_template("admin_dashboard.html", users=users, cards=cards, transactions=transactions)
+
 
 @app.route("/delete/<int:no>")
 def delete(no):
@@ -203,6 +207,59 @@ def balance():
     remainBal = cursor.fetchone()
 
     return render_template("balance.html", bal = remainBal)
+
+@app.route("/topup", methods=["GET", "POST"])
+def topup():
+    db, cursor = get_db()
+
+    if request.method == "POST":
+        cardid = request.form["cardid"]
+        amount = request.form["amount"]
+
+        try:
+            cursor.execute("SELECT balance FROM cards WHERE cardID = %s", (cardid,))
+            card = cursor.fetchone()
+            if not card:
+                flash("Card ID not found!", "danger")
+            else:
+                cursor.execute("UPDATE cards SET balance = balance + %s WHERE cardID = %s", (amount, cardid))
+                db.commit()
+                flash("Balance successfully added!", "success")
+        except Exception as e:
+            db.rollback()
+            flash(f"Error: {e}", "danger")
+
+    return render_template("topup.html")
+
+@app.route("/user_trans")
+def user_trans():
+    db, cursor = get_db()
+
+    if "userid" not in session:
+        flash("Please log in first.", "warning")
+        return redirect("/login2")
+
+    userid = session["userid"]
+    cursor.execute("SELECT cardID FROM cards WHERE userID = %s", (userid,))
+    card = cursor.fetchone()
+
+    if not card:
+        flash("No card found for this user.", "warning")
+        return render_template("user_trans.html", transactions=[])
+
+    cardid = card["cardID"]
+    cursor.execute("""
+        SELECT t.transID, t.cardID, s1.name AS depart_station, s2.name AS arrival_station,
+               t.amount, t.timed
+        FROM transactions t
+        JOIN stations s1 ON t.departID = s1.stationID
+        JOIN stations s2 ON t.arrivalID = s2.stationID
+        WHERE t.cardID = %s
+        ORDER BY t.timed DESC
+    """, (cardid,))
+    transactions = cursor.fetchall()
+
+    return render_template("user_trans.html", transactions=transactions)
 
 if __name__ == "__main__":
     app.run(debug=True)

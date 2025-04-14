@@ -1,18 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pune Metro</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            padding-top: 50px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        a {
+            text-decoration: none;
+            color: #007bff;
+            font-size: 18px;
+            margin: 10px 0;
+            display: inline-block;
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #007bff;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        a:hover {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .messages {
+            font-size: 14px;
+            color: #333;
+            margin-top: 20px;
+        }
+
+        .messages.success {
+            color: green;
+        }
+
+        .messages.danger {
+            color: red;
+        }
+
+        p {
+            margin-top: 30px;
+        }
+
+        p a {
+            color: #007bff;
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        p a:hover {
+            text-decoration: underline;
+        }
+
+    </style>
 </head>
 <body>
-    <a href="/issue_card">Issue Card</a>
-    <a href="/balance">Check Balance</a>
-    <a href="/user_trans">See Transactions</a>
-    
+
+    <h1>Welcome to Pune Metro User Dashboard</h1>
+
     {% with messages = get_flashed_messages(with_categories=true) %}
-      {% for category, message in messages %}
-        <p style="color: {% if category == 'success' %}green{% else %}red{% endif %};">{{ message }}</p>
-      {% endfor %}
+        {% if messages %}
+            <div class="messages">
+                {% for category, message in messages %}
+                    <p class="{% if category == 'success' %}success{% elif category == 'danger' %}danger{% else %}default{% endif %};">
+                        {{ message }}
+                    </p>
+                {% endfor %}
+            </div>
+        {% endif %}
     {% endwith %}
+
+    <div>
+        <a href="/issue_card">Issue Card</a>
+        <a href="/balance">Check Balance</a>
+        <a href="/user_trans">See Transactions</a>
+    </div>
+
+    <p><a href="/home">Back to Home</a></p>
+
 </body>
 </html>

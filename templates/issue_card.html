@@ -1,18 +1,123 @@
-<form method="POST">
-    <label>Name:</label>
-    <input type="text" name="name" required><br><br>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Issue Metro Card</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 0;
+        }
 
-    <label>Email:</label>
-    <input type="email" name="email" required><br><br>
+        .form-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 30px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
 
-    <label>Initial Balance:</label>
-    <input type="number" name="dep" required><br><br>
+        .form-container h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+        }
 
-    <input type="submit" value="Issue Card">
-</form>
+        .form-container label {
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: #555;
+        }
 
-{% with messages = get_flashed_messages(with_categories=true) %}
-  {% for category, message in messages %}
-    <p style="color: {% if category == 'success' %}green{% else %}red{% endif %};">{{ message }}</p>
-  {% endfor %}
-{% endwith %}
+        .form-container input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            background-color: #f9f9f9;
+        }
+
+        .form-container input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        .form-container button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .form-container button:hover {
+            background-color: #45a049;
+        }
+
+        .flash-message {
+            padding: 10px;
+            margin-top: 10px;
+            text-align: center;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+
+        .flash-message.success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .flash-message.danger {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 16px;
+            color: #007BFF;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>Issue Metro Card</h2>
+
+        <form method="POST">
+            <label>Name:</label>
+            <input type="text" name="name" required>
+
+            <label>Email:</label>
+            <input type="email" name="email" required>
+
+            <label>Initial Balance:</label>
+            <input type="number" name="dep" required>
+
+            <button type="submit">Issue Card</button>
+        </form>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% for category, message in messages %}
+            <p class="flash-message {{ category }}">{{ message }}</p>
+          {% endfor %}
+        {% endwith %}
+
+        <p><a href="/user" class="back-link">← Back to User Dashboard</a></p>
+    </div>
+</body>
+</html>

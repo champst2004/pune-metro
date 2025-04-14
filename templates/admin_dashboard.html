@@ -1,25 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        h2 {
+            text-align: center;
+            margin-top: 30px;
+            color: #333;
+        }
+
+        .logout-btn {
+            display: inline-block;
+            margin: 20px;
+            float: right;
+            padding: 8px 15px;
+            background-color: #dc3545;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .logout-btn:hover {
+            background-color: #c82333;
+        }
+
+        table {
+            width: 90%;
+            margin: 30px auto;
+            border-collapse: collapse;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .delete-btn {
+            background-color: #ff4d4d;
+            color: white;
+            padding: 7px 12px;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+
+        .delete-btn:hover {
+            background-color: #e60000;
+        }
+
+        .table-container {
+            margin-bottom: 40px;
+        }
+    </style>
+</head>
 <body>
 
     <h2>Admin Dashboard</h2>
     <a href="/logout" class="logout-btn">Logout</a>
 
-    <table>
-        <tr>
-            <th>User ID</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>User Type</th>
-            <th>Actions</th>
-        </tr>
-        {% for acc in users %}
+    <div class="table-container">
+        <h3>Users</h3>
+        <table>
             <tr>
-                <td>{{ acc["userID"] }}</td>
-                <td>{{ acc["name"] }}</td>
-                <td>{{ acc["email"] }}</td>
-                <td>{{ acc["usertype"] }}</td>
-                <td><a href="{{ url_for('delete', no=acc['userID']) }}" class="delete-btn">Delete</a></td>
+                <th>User ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>User Type</th>
+                <th>Actions</th>
             </tr>
-        {% endfor %}
-    </table>
+            {% for acc in users %}
+                <tr>
+                    <td>{{ acc["userID"] }}</td>
+                    <td>{{ acc["name"] }}</td>
+                    <td>{{ acc["email"] }}</td>
+                    <td>{{ acc["usertype"] }}</td>
+                    <td><a href="{{ url_for('delete', no=acc['userID']) }}" class="delete-btn">Delete</a></td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <div class="table-container">
+        <h3>Cards</h3>
+        <table>
+            <tr>
+                <th>Card ID</th>
+                <th>User ID</th>
+                <th>Card Type</th>
+                <th>Balance</th>
+                <th>Issue Date</th>
+            </tr>
+            {% for card in cards %}
+                <tr>
+                    <td>{{ card["cardID"] }}</td>
+                    <td>{{ card["userID"] }}</td>
+                    <td>{{ card["cardtype"] }}</td>
+                    <td>{{ card["balance"] }}</td>
+                    <td>{{ card["issuedate"] }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <div class="table-container">
+        <h3>Transactions</h3>
+        <table>
+            <tr>
+                <th>Transaction ID</th>
+                <th>Card ID</th>
+                <th>Departure Station</th>
+                <th>Arrival Station</th>
+                <th>Amount (Rs)</th>
+                <th>Timestamp</th>
+            </tr>
+            {% for trans in transactions %}
+                <tr>
+                    <td>{{ trans["transID"] }}</td>
+                    <td>{{ trans["cardID"] }}</td>
+                    <td>{{ trans["departID"] }}</td>
+                    <td>{{ trans["arrivalID"] }}</td>
+                    <td>{{ trans["amount"] }}</td>
+                    <td>{{ trans["timed"] }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
 
 </body>
+</html>

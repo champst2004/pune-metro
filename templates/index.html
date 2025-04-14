@@ -1,13 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Pune Metro</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <h1>Welcome to Pune Metro</h1>
-    <a href="/signup">Sign Up</a>
-    <a href="/login">Login</a>
-    <a href="/booking">Book Ticket</a>
+    <div class="container">
+        <h1>🚇 Welcome to Pune Metro</h1>
+        <div class="button-group">
+            <a href="/signup" class="btn">Sign Up</a>
+            <a href="/login" class="btn">Login</a>
+            <a href="/booking" class="btn">Book Ticket</a>
+        </div>
+    </div>
 </body>
 </html>

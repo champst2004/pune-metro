@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Top Up Card Balance</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f7f6;
+            background-color: #f4f4f4;
             margin: 0;
             padding: 0;
             display: flex;
@@ -19,16 +19,16 @@
 
         .form-container {
             background-color: white;
-            padding: 20px;
+            padding: 30px;
             border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 400px;
         }
 
         h2 {
-            margin-bottom: 20px;
             color: #333;
+            margin-bottom: 20px;
         }
 
         label {
@@ -39,7 +39,7 @@
             text-align: left;
         }
 
-        input[type="email"], input[type="text"] {
+        input[type="number"] {
             width: 100%;
             padding: 10px;
             margin: 10px 0;
@@ -52,7 +52,7 @@
             background-color: #007bff;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 12px 20px;
             cursor: pointer;
             border-radius: 4px;
             width: 100%;
@@ -69,10 +69,6 @@
             margin-top: 20px;
         }
 
-        .message p {
-            margin: 10px 0;
-        }
-
         .message .success {
             color: green;
         }
@@ -80,30 +76,58 @@
         .message .error {
             color: red;
         }
+
+        p {
+            margin-top: 20px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            font-size: 14px;
+            margin: 5px 0;
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
     <div class="form-container">
-        <h2>Login</h2>
-        <form method="POST">
-            <label for="email">Email:</label>
-            <input type="email" name="email" id="email" required><br><br>
-
-            <label for="name">Username:</label>
-            <input type="text" name="name" id="name" required><br><br>
-
-            <input type="submit" value="Login">
-        </form>
+        <h2>Top Up Card Balance</h2>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
-            {% for category, message in messages %}
-                <div class="message">
-                    <p class="{{ 'success' if category == 'success' else 'error' }}">
-                        {{ message }}
-                    </p>
-                </div>
-            {% endfor %}
+          {% if messages %}
+            <ul>
+              {% for category, message in messages %}
+                <li style="color: {% if category == 'success' %}green{% elif category == 'danger' %}red{% else %}black{% endif %};">
+                  {{ message }}
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
         {% endwith %}
+
+        <form method="POST" action="/topup">
+            <label for="cardid">Card ID:</label>
+            <input type="number" name="cardid" required><br><br>
+
+            <label for="amount">Amount to Add (Rs):</label>
+            <input type="number" name="amount" step="0.01" min="1" required><br><br>
+
+            <input type="submit" value="Top Up">
+        </form>
+
+        <p><a href="/user">Back to User Dashboard</a></p>
     </div>
 </body>
 </html>

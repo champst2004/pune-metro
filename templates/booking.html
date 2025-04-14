@@ -1,43 +1,123 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Book Metro Ticket</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f0f4f8;
+            padding: 40px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background-color: #fff;
+            padding: 30px 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #007bff;
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin: 12px 0 5px;
+            font-weight: 600;
+        }
+
+        select,
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 15px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        input[type="submit"] {
+            margin-top: 25px;
+            width: 100%;
+            background-color: #007bff;
+            color: white;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        .messages {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .messages p {
+            font-weight: 500;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #007bff;
+            font-weight: 500;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-    <h1>Book Your Ride</h1>
+    <div class="container">
+        <h1>Book Your Ride</h1>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% for category, message in messages %}
-        <p style="color: {% if category == 'success' %}green{% else %}red{% endif %};">
-          {{ message }}
-        </p>
-      {% endfor %}
-    {% endwith %}
+        <div class="messages">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% for category, message in messages %}
+                    <p style="color: {% if category == 'success' %}green{% else %}red{% endif %};">
+                        {{ message }}
+                    </p>
+                {% endfor %}
+            {% endwith %}
+        </div>
 
-    <form action="/booking" method="POST">
-        <label for="cardID">Card ID (leave blank if you don't have one):</label>
-        <input type="number" name="cardID" id="cardID" placeholder="Enter your card ID">
-        <br><br>
+        <form action="/booking" method="POST">
+            <label for="cardID">Card ID (leave blank if you don't have one):</label>
+            <input type="number" name="cardID" id="cardID" placeholder="Enter your card ID">
 
-        <label for="departure">Departure Station:</label>
-        <select name="departure" id="departure" required>
-            <option value="" disabled selected>Select departure</option>
-            {% for station in stations %}
-                <option value="{{ station.stationID }}">{{ station.name }}</option>
-            {% endfor %}
-        </select>
-        <br><br>
+            <label for="departure">Departure Station:</label>
+            <select name="departure" id="departure" required>
+                <option value="" disabled selected>Select departure</option>
+                {% for station in stations %}
+                    <option value="{{ station.stationID }}">{{ station.name }}</option>
+                {% endfor %}
+            </select>
 
-        <label for="arrival">Arrival Station:</label>
-        <select name="arrival" id="arrival" required>
-            <option value="" disabled selected>Select arrival</option>
-            {% for station in stations %}
-                <option value="{{ station.stationID }}">{{ station.name }}</option>
-            {% endfor %}
-        </select>
-        <br><br>
+            <label for="arrival">Arrival Station:</label>
+            <select name="arrival" id="arrival" required>
+                <option value="" disabled selected>Select arrival</option>
+                {% for station in stations %}
+                    <option value="{{ station.stationID }}">{{ station.name }}</option>
+                {% endfor %}
+            </select>
 
-        <input type="submit" value="Book Ticket">
-    </form>
+            <input type="submit" value="Book Ticket">
+        </form>
+
+        <a href="/home">← Back to Home</a>
+    </div>
 </body>
 </html>

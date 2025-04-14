@@ -1,17 +1,91 @@
-<h1>Balance</h1>
-<table>
-    <tr>
-        <th>Card ID</th>
-        <th>Card Type</th>
-        <th>Balance</th>
-        <th>Issue date time</th>
-        <th>Discount given</th>
-    </tr>
-    <tr>
-        <td>{{ bal["cardID"] }}</td>
-        <td>{{ bal["cardtype"] }}</td>
-        <td>{{ bal["balance"] }}</td>
-        <td>{{ bal["issuedate"] }}</td>
-        <td>{{ bal["discount_given"] }}</td>
-    </tr>
-</table>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Card Balance</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f4f6f9;
+            padding: 40px;
+            margin: 0;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        table {
+            margin: 0 auto 30px auto;
+            border-collapse: collapse;
+            width: 80%;
+            max-width: 700px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 14px 18px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+            color: #333;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        a {
+            display: inline-block;
+            margin: 10px 12px;
+            padding: 10px 18px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        a:hover {
+            background-color: #0056b3;
+        }
+
+        p {
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Balance</h1>
+    <table>
+        <tr>
+            <th>Card ID</th>
+            <th>Card Type</th>
+            <th>Balance</th>
+            <th>Issue Date</th>
+            <th>Discount Given</th>
+        </tr>
+        <tr>
+            <td>{{ bal["cardID"] }}</td>
+            <td>{{ bal["cardtype"] }}</td>
+            <td>₹{{ bal["balance"] }}</td>
+            <td>{{ bal["issuedate"] }}</td>
+            <td>{{ bal["discount_given"] }}%</td>
+        </tr>
+    </table>
+
+    <a href="/topup">Top Up Card</a>
+    <a href="/user">Back to User Dashboard</a>
+
+</body>
+</html>
