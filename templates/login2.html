@@ -1,14 +1,11 @@
 <form method="POST">
-    <label>Name:</label>
-    <input type="text" name="name" required><br><br>
-
     <label>Email:</label>
     <input type="email" name="email" required><br><br>
 
-    <label>Initial Balance:</label>
-    <input type="number" name="dep" required><br><br>
+    <label>Username:</label>
+    <input type="text" name="name" required><br><br>
 
-    <input type="submit" value="Issue Card">
+    <input type="submit" value="Login">
 </form>
 
 {% with messages = get_flashed_messages(with_categories=true) %}

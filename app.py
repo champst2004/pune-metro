@@ -1,5 +1,6 @@
-from flask import Flask, render_template, request, redirect, flash
-from db import db, cursor
+from flask import Flask, render_template, request, redirect, flash, session
+from db import get_db
+import mysql.connector
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
@@ -8,97 +9,200 @@ app.secret_key = "supersecretkey"
 def home():
     return render_template("index.html")
 
-@app.route("/view_cards")
-def view_cards():
-    cursor.execute("SELECT * FROM cards")
-    cards = cursor.fetchall()
-    return render_template("view_cards.html", cards=cards)
+@app.route("/login")
+def login():
+    return render_template("login.html")
+
+@app.route("/login2", methods=["GET", "POST"])
+def login2():
+    db, cursor = get_db()
+
+    if request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+
+        print(f"Attempting login for: {name}, {email}")  # Debugging
+
+        cursor.execute("SELECT * FROM users WHERE name=%s AND email=%s", (name, email))
+        user_data = cursor.fetchone()
+
+        if user_data:
+            userid = user_data["userID"]
+            session["userid"] = userid
+            flash("Login successful!", "success")
+            print(f"Login successful for userID: {userid}")  # Debugging
+            return redirect("/user")  # Should redirect here
+        else:
+            flash("Credentials do not match", "warning")
+            print("Login failed.")  # Debugging
+
+    return render_template("login2.html")
+
+@app.route("/user")
+def user():
+    if "userid" not in session:
+        flash("Please login first", "warning")
+        return redirect("/login2")
+
+    return render_template("user.html")
+
+@app.route("/signup", methods=['GET', 'POST'])
+def signup():
+    db, cursor = get_db()
+    if request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+        usertype = request.form['usertype']
+
+        try:
+            # Validate MITWPU Student email
+            if usertype == "Student":
+                cursor.execute("SELECT * FROM students WHERE email = %s", (email,))
+                student = cursor.fetchone()
+                if not student:
+                    flash("Email not found in MITWPU student database!", "danger")
+                    return render_template("signup.html")
+
+            cursor.execute("INSERT INTO users (name, email, usertype) VALUES (%s, %s, %s)",
+                           (name, email, usertype))
+            db.commit()
+            flash("User registered successfully!", "success")
+            return redirect('/login')
+
+        except mysql.connector.IntegrityError:
+            flash("Email already exists or is invalid!", "danger")
+        finally:
+            cursor.close()
+            db.close()
+
+    return render_template("signup.html")
+
+@app.route("/admin", methods=["GET", "POST"])
+def admin():
+    db, cursor = get_db()
+    if request.method == "POST":
+        id = request.form["id"]
+        passw = request.form["passw"]
+
+        cursor.execute("SELECT * FROM admin WHERE adminid=%s AND password=%s", (id, passw))
+        admin_data = cursor.fetchone()
+
+        if admin_data:
+            session["admin"] = id
+            flash("Login successful!", "success")
+            return redirect("/admin_dashboard")
+        else:
+            flash("Invalid credentials!", "danger")
+
+    return render_template("admin.html")
+
+@app.route("/admin_dashboard")
+def admin_dashboard():
+    db, cursor = get_db()
+    if "admin" not in session:
+        flash("Please log in as admin first!", "warning")
+        return redirect("/admin")
+
+    cursor.execute("select * from users")  
+    users = cursor.fetchall()
+    return render_template("admin_dashboard.html", users = users)
+
+@app.route("/delete/<int:no>")
+def delete(no):
+    db, cursor = get_db()
+    try:
+        cursor.execute("DELETE FROM users WHERE userid = %s", (no,))
+        db.commit()
+        flash("Account deleted successfully!", "success")
+    except mysql.connector.Error as e:
+        db.rollback()
+        flash(f"Failed to delete user: {str(e)}", "danger")
+    return redirect("/admin_dashboard")
+
+
+@app.route("/logout")
+def logout():
+    session.pop("admin", None)
+    flash("Logged out successfully.", "info")
+    return redirect("/admin")
+
+@app.route("/booking", methods=["GET", "POST"])
+def booking():
+    db, cursor = get_db()
+    cursor.execute("SELECT stationID, name FROM stations")
+    stations = cursor.fetchall()
+
+    if request.method == "POST":
+        depart_id = int(request.form["departure"])
+        arrival_id = int(request.form["arrival"])
+        card_id = request.form.get("cardID")
+
+        # Fare calculation (simple version, adjust as needed)
+        distance = abs(depart_id - arrival_id)
+        amount = 10 + distance * 2  # Example: base fare + per-station
+
+        try:
+            cursor.execute("""
+                INSERT INTO transactions (cardID, departID, arrivalID, amount)
+                VALUES (%s, %s, %s, %s)
+            """, (card_id if card_id else None, depart_id, arrival_id, amount))
+            db.commit()
+            flash("Ticket booked successfully!", "success")
+        except Exception as e:
+            db.rollback()
+            flash(f"Booking failed: {str(e)}", "danger")
+
+    return render_template("booking.html", stations=stations)
 
 @app.route("/issue_card", methods=["GET", "POST"])
 def issue_card():
+    db, cursor = get_db()
+
     if request.method == "POST":
-        name = request.form["name"]
-        prn = request.form.get("prn", None)  # If empty, store as NULL
-        cardno = request.form["cardno"]
+        try:
+            name = request.form["name"]
+            email = request.form["email"]
+            dep = request.form["dep"]
 
-        cursor.execute("SELECT * FROM students WHERE prn = %s", (prn,))
-        is_student = cursor.fetchone()
+            cursor.execute("SELECT userid FROM users WHERE email = %s", (email,))
+            user_row = cursor.fetchone()
 
-        if is_student:
-            cursor.execute("INSERT INTO cards (id, name, cardno, balance) VALUES (%s, %s, %s, 0)",
-                           (prn, name, cardno))
-        else:
-            cursor.execute("INSERT INTO cards (id, name, cardno, balance) VALUES (NULL, %s, %s, 0)",
-                           (name, cardno))
+            cursor.execute("SELECT usertype FROM users WHERE email = %s", (email,))
+            type_row = cursor.fetchone()
 
-        db.commit()
-        flash("Metro Card Issued Successfully!", "success")
-        return redirect("/view_cards")
+            if not user_row or not type_row:
+                flash("User not found!", "danger")
+                return render_template("issue_card.html")
+
+            userid = user_row["userid"]
+            cardtype = type_row["usertype"]
+
+            cursor.execute(
+                "INSERT INTO cards (userid, cardtype, balance) VALUES (%s, %s, %s)",
+                (userid, cardtype, dep)
+            )
+            db.commit()
+            flash("Card issued successfully!", "success")
+
+        except mysql.connector.Error as e:
+            db.rollback()
+            flash(f"Database Error: {e}", "danger")
+
+        finally:
+            cursor.close()
+            db.close()
 
     return render_template("issue_card.html")
 
-@app.route("/book_ticket", methods=["GET", "POST"])
-def book_ticket():
-    cursor.execute("SELECT * FROM stations")
-    stations = cursor.fetchall()
-    fare = None
-    error = None
+@app.route("/balance")
+def balance():
+    db, cursor = get_db()
+    userid = session["userid"]
 
-    if request.method == "POST":
-        cardno = request.form.get("cardno", None)
-        start_station = int(request.form["start_station"])
-        end_station = int(request.form["end_station"])
-        discount = 0
+    cursor.execute("call get_balance(%s)", (userid, ))
+    remainBal = cursor.fetchone()
 
-        # Check if user has a card and determine discount
-        if cardno:
-            cursor.execute("SELECT id, balance FROM cards WHERE cardno = %s", (cardno,))
-            card = cursor.fetchone()
-
-            if card:
-                if card["id"]:  # If PRN exists, it's a student card
-                    discount = 25
-                else:
-                    discount = 10
-            else:
-                error = "Invalid card number!"
-                return render_template("book_ticket.html", stations=stations, error=error)
-
-        # Calculate fare based on number of stations traveled
-        station_diff = abs(start_station - end_station)
-        fare = min(30, station_diff * 10)
-        final_fare = fare - (fare * discount / 100)
-
-        # If user has a card, check balance and deduct fare
-        if cardno:
-            if card["balance"] < final_fare:
-                error = "Insufficient balance! Please recharge your card."
-                return render_template("book_ticket.html", stations=stations, error=error)
-
-            # Deduct balance from card
-            new_balance = card["balance"] - final_fare
-            cursor.execute("UPDATE cards SET balance = %s WHERE cardno = %s", (new_balance, cardno))
-
-            # Insert transaction for fare deduction
-            cursor.execute("INSERT INTO transactions (cardno, type, amount) VALUES (%s, 'Fare', %s)", (cardno, final_fare))
-
-        # Insert ride into rides table
-        cursor.execute("INSERT INTO rides (cardno, source_station, destination_station, fare) VALUES (%s, %s, %s, %s)", 
-                       (cardno, start_station, end_station, final_fare))
-
-        db.commit()
-
-        flash("Ticket booked successfully!", "success")
-        return redirect("/ride_history")
-
-    return render_template("book_ticket.html", stations=stations, fare=fare, error=error)
-
-
-@app.route("/ride_history")
-def ride_history():
-    cursor.execute("SELECT * FROM rides")
-    rides = cursor.fetchall()
-    return render_template("ride_history.html", rides=rides)
+    return render_template("balance.html", bal = remainBal)
 
 if __name__ == "__main__":
     app.run(debug=True)

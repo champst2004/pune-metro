@@ -1,0 +1,25 @@
+<body>
+
+    <h2>Admin Dashboard</h2>
+    <a href="/logout" class="logout-btn">Logout</a>
+
+    <table>
+        <tr>
+            <th>User ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>User Type</th>
+            <th>Actions</th>
+        </tr>
+        {% for acc in users %}
+            <tr>
+                <td>{{ acc["userID"] }}</td>
+                <td>{{ acc["name"] }}</td>
+                <td>{{ acc["email"] }}</td>
+                <td>{{ acc["usertype"] }}</td>
+                <td><a href="{{ url_for('delete', no=acc['userID']) }}" class="delete-btn">Delete</a></td>
+            </tr>
+        {% endfor %}
+    </table>
+
+</body>

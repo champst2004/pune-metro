@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Book Metro Ticket</title>
+</head>
+<body>
+    <h1>Book Your Ride</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <p style="color: {% if category == 'success' %}green{% else %}red{% endif %};">
+          {{ message }}
+        </p>
+      {% endfor %}
+    {% endwith %}
+
+    <form action="/booking" method="POST">
+        <label for="cardID">Card ID (leave blank if you don't have one):</label>
+        <input type="number" name="cardID" id="cardID" placeholder="Enter your card ID">
+        <br><br>
+
+        <label for="departure">Departure Station:</label>
+        <select name="departure" id="departure" required>
+            <option value="" disabled selected>Select departure</option>
+            {% for station in stations %}
+                <option value="{{ station.stationID }}">{{ station.name }}</option>
+            {% endfor %}
+        </select>
+        <br><br>
+
+        <label for="arrival">Arrival Station:</label>
+        <select name="arrival" id="arrival" required>
+            <option value="" disabled selected>Select arrival</option>
+            {% for station in stations %}
+                <option value="{{ station.stationID }}">{{ station.name }}</option>
+            {% endfor %}
+        </select>
+        <br><br>
+
+        <input type="submit" value="Book Ticket">
+    </form>
+</body>
+</html>

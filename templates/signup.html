@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Sign-Up</title>
+</head>
+<body>
+    <h2>Register as Metro User</h2>
+    <form method="POST">
+        <label>Name:</label><br>
+        <input type="text" name="name" required><br><br>
+
+        <label>Email:</label><br>
+        <input type="email" name="email" required><br><br>
+
+        <label>User Type:</label><br>
+        <select name="usertype" required>
+            <option value="General">General</option>
+            <option value="Student">Student</option>
+        </select><br><br>
+
+        <input type="submit" value="Sign Up">
+    </form>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <p style="color: {% if category == 'success' %}green{% else %}red{% endif %};">{{ message }}</p>
+      {% endfor %}
+    {% endwith %}
+
+    <p><a href="/admin">Back to Admin Login</a></p>
+</body>
+</html>

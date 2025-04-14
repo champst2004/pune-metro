@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Pune Metro</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <a href="/issue_card">Issue Card</a>
+    <a href="/balance">Check Balance</a>
+    <a href="/user_trans">See Transactions</a>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <p style="color: {% if category == 'success' %}green{% else %}red{% endif %};">{{ message }}</p>
+      {% endfor %}
+    {% endwith %}
+</body>
+</html>
