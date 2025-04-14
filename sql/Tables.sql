@@ -1,5 +1,4 @@
 create database PuneMetro;
-
 use PuneMetro;
 
 CREATE TABLE students (

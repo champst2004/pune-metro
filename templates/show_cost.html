@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Show Fare</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .fare-info p {
+            font-size: 18px;
+            margin: 10px 0;
+        }
+
+        .fare-info h2 {
+            font-size: 24px;
+            color: #007bff;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: #007bff;
+            color: white;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            color: red;
+            font-size: 14px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Fare Details</h1>
+
+        <div class="fare-info">
+            <p><strong>Departure Station:</strong> {{ depart_station }}</p>
+            <p><strong>Arrival Station:</strong> {{ arrival_station }}</p>
+            <h2>Total Fare: ₹{{ fare }}</h2>
+        </div>
+
+        <form action="/confirm_booking" method="POST">
+            <input type="hidden" name="fare" value="{{ fare }}">
+            <input type="hidden" name="depart_station" value="{{ depart_station }}">
+            <input type="hidden" name="arrival_station" value="{{ arrival_station }}">
+            <input type="hidden" name="cardID" value="{{ card_id }}">
+
+            <button type="submit">Book Ticket</button>
+        </form>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul>
+                    {% for category, message in messages %}
+                        <li><strong>{{ category }}:</strong> {{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+    </div>
+
+</body>
+</html>

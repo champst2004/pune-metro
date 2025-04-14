@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, flash, session
+from flask import Flask, render_template, request, redirect, flash, session, url_for
 from db import get_db
 import mysql.connector
 
@@ -133,30 +133,93 @@ def logout():
 @app.route("/booking", methods=["GET", "POST"])
 def booking():
     db, cursor = get_db()
-    cursor.execute("SELECT stationID, name FROM stations")
+    cursor.execute("SELECT name FROM stations")
     stations = cursor.fetchall()
 
     if request.method == "POST":
-        depart_id = int(request.form["departure"])
-        arrival_id = int(request.form["arrival"])
+        depart_station = request.form["departure"]
+        arrival_station = request.form["arrival"]
         card_id = request.form.get("cardID")
 
-        # Fare calculation (simple version, adjust as needed)
-        distance = abs(depart_id - arrival_id)
-        amount = 10 + distance * 2  # Example: base fare + per-station
+        # Normalize card_id
+        card_id = int(card_id) if card_id and card_id.strip().isdigit() else None
 
         try:
-            cursor.execute("""
-                INSERT INTO transactions (cardID, departID, arrivalID, amount)
-                VALUES (%s, %s, %s, %s)
-            """, (card_id if card_id else None, depart_id, arrival_id, amount))
-            db.commit()
-            flash("Ticket booked successfully!", "success")
+            cursor.execute("SELECT fare(%s, %s, %s) AS fare", (card_id, depart_station, arrival_station))
+            fare = cursor.fetchone()["fare"]
+            print("Using card_id:", card_id)
+            return redirect(
+                url_for("show_cost",
+                        fare=fare,
+                        depart_station=depart_station,
+                        arrival_station=arrival_station,
+                        card_id=card_id if card_id else "")
+            )
+
         except Exception as e:
-            db.rollback()
-            flash(f"Booking failed: {str(e)}", "danger")
+            flash(f"Error calculating fare: {str(e)}", "danger")
+            return redirect("/booking")
 
     return render_template("booking.html", stations=stations)
+
+
+@app.route("/show_cost")
+def show_cost():
+    fare = request.args.get("fare")
+    depart_station = request.args.get("depart_station")
+    arrival_station = request.args.get("arrival_station")
+    card_id = request.args.get("card_id") or None
+
+    return render_template("show_cost.html", fare=fare, depart_station=depart_station, arrival_station=arrival_station, card_id=card_id)
+
+@app.route("/confirm_booking", methods=["POST"])
+def confirm_booking():
+    card_id_raw = request.form.get("cardID")
+    depart_station = request.form.get("depart_station")
+    arrival_station = request.form.get("arrival_station")
+    fare = request.form.get("fare")
+
+    print(f"Received: cardID={card_id_raw}, depart_station={depart_station}, arrival_station={arrival_station}, fare={fare}")
+
+    card_id = None
+    if card_id_raw and card_id_raw.strip().lower() != "none":
+        try:
+            card_id = int(card_id_raw)
+        except ValueError:
+            card_id = None
+
+    db, cursor = get_db()
+
+    try:
+        cursor.execute("SELECT stationID FROM stations WHERE name = %s", (depart_station,))
+        depart_id = cursor.fetchone()["stationID"]
+
+        cursor.execute("SELECT stationID FROM stations WHERE name = %s", (arrival_station,))
+        arrival_id = cursor.fetchone()["stationID"]
+
+        cursor.execute("""
+            INSERT INTO transactions (cardID, departID, arrivalID, amount)
+            VALUES (%s, %s, %s, %s)
+        """, (card_id, depart_id, arrival_id, fare))
+
+        db.commit()
+        flash("Ticket booked successfully!", "success")
+        return redirect("/ticket_confirm")
+
+    except Exception as e:
+        db.rollback()
+        flash(f"Error booking ticket: {str(e)}", "danger")
+        print(f"Error: {e}")
+        return redirect("/show_cost")
+
+    finally:
+        cursor.close()
+        db.close()
+
+
+@app.route("/ticket_confirm")
+def ticket_confirm():
+    return render_template("ticket_confirm.html")
 
 @app.route("/issue_card", methods=["GET", "POST"])
 def issue_card():

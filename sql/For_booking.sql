@@ -11,7 +11,6 @@ BEGIN
     declare fin int;
     select stationID into ini from stations where name = dept_st;
     select stationID into fin from stations where name = arr_st;
-    -- Calculate base fare
     if ini - fin = -1 or ini - fin = 1 then set baseFare = 10.00;
 elseif ini - fin = -2 or ini - fin = 2 then set baseFare = 15.00;
 elseif ini - fin = -3 or ini - fin = 3 then set baseFare = 20.00;
@@ -20,11 +19,9 @@ elseif ini - fin <= -4 or ini - fin >= 4 then set baseFare = 30.00;
 else set baseFare = 0.00;
 end if;
 
-    -- Default no discount
     SET discount = 0.00;
 
-    -- Check if cardID is provided
-    IF cardID IS NOT NULL THEN
+    IF card_ID IS NOT NULL THEN
         SELECT cardtype INTO cardType FROM cards WHERE cards.cardID = card_ID;
         IF cardType = 'Student' THEN
             SET discount = 0.30;
@@ -38,8 +35,6 @@ END //
 
 DELIMITER ;
 
-
---  trigger for updating the balance of card after transaction
 DELIMITER //
 
 CREATE TRIGGER update_balance_after_booking
@@ -52,8 +47,6 @@ BEGIN
 END //
 
 DELIMITER ;
-
---function if balance is not sufficient 
 delimiter //
 create function insuff_balance(fare decimal(10,2), card_ID int) returns int
 deterministic
@@ -68,7 +61,6 @@ return judgement;
 end//
 delimiter ;
 
---inserting into transactions table without card:-
 INSERT INTO transactions (departID, arrivalID, amount)
 SELECT 
     (SELECT stationID FROM stations WHERE stations.name = "Vanaz"), 
@@ -76,7 +68,6 @@ SELECT
     fare_without_card("Vanaz", "Nal Stop");
 
 
---inserting into transactions table with card:-
 INSERT INTO transactions (departID, arrivalID, amount)
 SELECT
     2,
